@@ -1,0 +1,76 @@
+services:
+  # 1. FRONTEND (React App)
+  frontend:
+    build: 
+      context: ./frontend
+      # Multi-platform build for ARM64 (Oracle Free Tier) compatibility
+      # docker buildx support required on host if building locally and pushing
+      # But standard Node images usually support arm64
+      dockerfile: Dockerfile 
+      args:
+        # Production build requires valid API URL
+        # Browser runs this, so it must be the public domain/IP
+        - VITE_API_URL=/api 
+    restart: always
+    expose:
+      - "80"
+    depends_on:
+      - backend
+
+  # 2. BACKEND (Tuygun API)
+  backend:
+    build: ./backend
+    restart: always
+    expose:
+      - "8000"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OBSIDIAN_VAULT_PATH=/app/obsidian_vault
+      # Production'da debug modu kapalı olabilir ama logları görmek isteyebiliriz
+      - PYTHONUNBUFFERED=1
+      # Security settings from config.py will be used (defaults or env vars)
+    command: sh -c "python init_db.py || true && gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000"
+    volumes:
+      # Production'da kod mount etmeyiz (COPY yeterli), sadece data mount edilir
+      # Ancak Obsidian vault verisi kalıcı olmalı:
+      - "${OBSIDIAN_VAULT_PATH:-./obsidian_vault_mount}:/app/obsidian_vault"
+    depends_on:
+      - db
+
+  # 3. DATABASE
+  db:
+    image: pgvector/pgvector:pg16
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    # Veritabanını dışarı açmıyoruz (security)
+    # ports:
+    #   - "5432:5432"
+
+  # 4. REVERSE PROXY (Caddy)
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,14 @@
+{
+    # Global options
+    email your-email@example.com
+}
+
+# Domain adı (DNS ayarlarınızı yaptıktan sonra burayı güncelleyin)
+# veya sadece IP adresi (HTTPS olmaz, sadece HTTP çalışır)
+:80 {
+    reverse_proxy frontend:80
+}
+
+:8000 {
+    reverse_proxy backend:8000
+}

@@ -1,0 +1,2 @@
+✅ SUCCESS: Article saved successfully.
+Response: {'message': 'Makale başarıyla kaydedildi', 'article_id': '41ff8e27-e2c1-428e-b609-09bf99efa166', 'document_id': 'eb3b2b5d-1d5c-4d56-bd7a-b8601e825834'}

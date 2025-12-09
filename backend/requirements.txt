@@ -1,0 +1,17 @@
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+python-multipart==0.0.6
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+python-dateutil==2.8.2
+feedparser==6.0.10
+beautifulsoup4==4.12.2
+requests==2.31.0
+ollama==0.1.7
+sentence-transformers>=2.2.2
+pgvector>=0.2.3
+trafilatura>=1.6.0
+python-dotenv==1.0.0
+pydantic-settings>=2.0.0
+

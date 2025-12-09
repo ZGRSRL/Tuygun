@@ -1,0 +1,51 @@
+services:
+  # 1. FRONTEND (React App)
+  frontend:
+    build: 
+      context: ./frontend
+      # Pass build-time arguments (Vite needs these at build time)
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  # 2. BACKEND (Tuygun API)
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OBSIDIAN_VAULT_PATH=/app/obsidian_vault
+      - PYTHONUNBUFFERED=1
+    # Use 'db' service name for networking instead of host gateway to avoid OS-specific issues
+    # extra_hosts is removed as we use the container network
+    command: sh -c "python init_db.py || true && uvicorn main:app --host 0.0.0.0 --port 8000"
+    volumes:
+      - ./backend:/app
+      # Mount the variable path from .env or default to a local folder to prevent crashes if not set
+      - "${OBSIDIAN_VAULT_PATH:-./obsidian_vault_mount}:/app/obsidian_vault"
+    depends_on:
+      - db
+
+  # 3. DATABASE
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+
+
