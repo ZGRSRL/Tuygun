@@ -145,7 +145,19 @@ OPENAI_API_KEY=your_key_here
 DATABASE_URL=postgresql://tuygun:pass@db:5432/tuygun_db
 ```
 
+## 🚀 Deployment (Canlıya Alma)
+
+Detaylı kurulum rehberi için [DEPLOYMENT.md](DEPLOYMENT.md) dosyasına bakabilirsiniz.
+
+## 🔮 Gelecek Vizyonu (Roadmap)
+
+Sistem oturduktan sonra yapılması planlanan geliştirmeler:
+
+1.  **Sync Otomasyonu:**
+    *   Bilgisayardaki Obsidian notlarını, sunucudaki `/app/data/vault` klasörüne otomatik eşitleyen "Syncthing" veya "Git Sync" yapısı.
+2.  **Agent Entegrasyonu:**
+    *   LangGraph veya AutoGen ekleyerek, "Bana son 1 haftadaki notlarımdan bir özet çıkar" diyebilen aktif bir asistan modülü.
+
 ## 📄 Lisans
 
 Bu proje özel bir projedir.
-
